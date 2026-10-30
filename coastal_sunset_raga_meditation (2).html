@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coastal Sunset Raga Meditation Suite</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        sunset: {
+                            900: '#1e1b4b',
+                            800: '#311042',
+                            700: '#581c87',
+                            600: '#7e22ce',
+                            gold: '#fbbf24',
+                            amber: '#f59e0b',
+                            teal: '#14b8a6',
+                            rose: '#f43f5e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+        .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #312e81;
+            border-radius: 3px;
+        }
+        .glass-card {
+            background: rgba(30, 27, 75, 0.45);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-sunset {
+            box-shadow: 0 0 40px -10px rgba(245, 158, 11, 0.3);
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- Top Navigation / Header -->
+    <header class="w-full px-6 py-4 flex items-center justify-between border-b border-indigo-950/60 bg-[#0b0f19]/80 backdrop-blur-md z-30">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-purple-600 flex items-center justify-center text-slate-950 shadow-lg glow-sunset">
+                <i class="fa-solid fa-water text-lg"></i>
+            </div>
+            <div>
+                <h1 class="serif-font font-bold text-lg text-slate-100 tracking-wide">Coastal Twilight & Dawn Ragas</h1>
+                <p class="text-xs text-indigo-300">Infinite Ambient Generative Soundscape from Oil Painting</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <!-- Context Time & Location Indicator -->
+            <div class="hidden md:flex items-center space-x-2 bg-indigo-950/60 px-3 py-1.5 rounded-full border border-indigo-800/40 text-xs font-mono text-amber-300">
+                <i class="fa-solid fa-location-dot text-rose-400"></i>
+                <span>Mokila, India (4:03 AM Dawn Blend)</span>
+            </div>
+
+            <!-- Master Play / Pause Button -->
+            <button id="master-play-btn" onclick="toggleMasterAudio()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-bold text-xs tracking-wider uppercase shadow-lg shadow-amber-500/20 flex items-center space-x-2 transition active:scale-95">
+                <i class="fa-solid fa-play text-sm" id="master-play-icon"></i>
+                <span id="master-play-text">Start Soundscape</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace: Visualizer Canvas + Control Deck -->
+    <main class="flex-1 relative flex flex-col lg:flex-row overflow-hidden">
+
+        <!-- Background Visualizer Canvas Container -->
+        <div class="absolute inset-0 z-0 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0b0f19] via-[#111029]/70 to-[#1e1b4b]/50 z-10 pointer-events-none"></div>
+            <canvas id="meditationCanvas"></canvas>
+        </div>
+
+        <!-- Foreground Interface Controls Deck -->
+        <div class="relative z-20 flex-1 flex flex-col lg:flex-row p-6 gap-6 justify-between items-center overflow-y-auto pointer-events-none">
+            
+            <!-- Left Panel: Mood Presets & Sound Layers -->
+            <div class="w-full lg:w-96 glass-card rounded-2xl p-5 space-y-4 pointer-events-auto shadow-2xl">
+                <div class="flex items-center justify-between border-b border-indigo-900/50 pb-3">
+                    <h2 class="serif-font font-bold text-sm text-amber-300 tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-palette"></i> MOOD & RAGA PRESETS
+                    </h2>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Infinite Loop</span>
+                </div>
+
+                <!-- Mood Presets -->
+                <div class="space-y-2">
+                    <button onclick="setMoodPreset('dawn')" id="mood-btn-dawn" class="w-full p-3 rounded-xl border border-amber-500/50 bg-amber-500/10 text-left transition flex items-center justify-between group">
+                        <div>
+                            <div class="text-xs font-bold text-amber-300">Dawn Awakening (4:03 AM Mokila)</div>
+                            <div class="text-[11px] text-indigo-300">Raga Todi & Quiet Pre-Dawn Ocean Waves</div>
+                        </div>
+                        <i class="fa-solid fa-check text-amber-400 text-xs"></i>
+                    </button>
+                    <button onclick="setMoodPreset('twilight')" id="mood-btn-twilight" class="w-full p-3 rounded-xl border border-indigo-900/50 bg-indigo-950/30 text-left transition flex items-center justify-between group hover:border-indigo-700">
+                        <div>
+                            <div class="text-xs font-bold text-slate-200">Coastal Twilight (Painting Sunset)</div>
+                            <div class="text-[11px] text-indigo-300">Raga Hamsadhwani & Golden Horizon Glow</div>
+                        </div>
+                        <i class="fa-solid fa-check text-amber-400 text-xs opacity-0"></i>
+                    </button>
+                    <button onclick="setMoodPreset('meditation')" id="mood-btn-meditation" class="w-full p-3 rounded-xl border border-indigo-900/50 bg-indigo-950/30 text-left transition flex items-center justify-between group hover:border-indigo-700">
+                        <div>
+                            <div class="text-xs font-bold text-slate-200">Kapi Deep Contemplation</div>
+                            <div class="text-[11px] text-indigo-300">Warm Synth Pad, Tanpura & Wind Chimes</div>
+                        </div>
+                        <i class="fa-solid fa-check text-amber-400 text-xs opacity-0"></i>
+                    </button>
+                </div>
+
+                <!-- Sound Layer Toggles & Volumes -->
+                <div class="space-y-2.5 pt-2 border-t border-indigo-900/50">
+                    <div class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Generative Sound Layers</div>
+
+                    <!-- Layer 1: Tanpura Drone -->
+                    <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-900/40 space-y-1.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="toggle-tanpura" checked onchange="toggleLayer('tanpura', this.checked)" class="accent-amber-500 rounded">
+                                <span class="font-medium text-slate-200">Tanpura Drone (Pa-Sa-Sa)</span>
+                            </label>
+                            <span class="text-[10px] font-mono text-amber-400" id="vol-tanpura-val">80%</span>
+                        </div>
+                        <input type="range" id="vol-tanpura" min="0" max="1" step="0.05" value="0.8" oninput="setLayerVolume('tanpura', this.value)" class="w-full accent-amber-500 bg-indigo-950 rounded h-1">
+                    </div>
+
+                    <!-- Layer 2: Sitar Plucks -->
+                    <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-900/40 space-y-1.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="toggle-sitar" checked onchange="toggleLayer('sitar', this.checked)" class="accent-amber-500 rounded">
+                                <span class="font-medium text-slate-200">Generative Sitar / Veena Melody</span>
+                            </label>
+                            <span class="text-[10px] font-mono text-amber-400" id="vol-sitar-val">70%</span>
+                        </div>
+                        <input type="range" id="vol-sitar" min="0" max="1" step="0.05" value="0.7" oninput="setLayerVolume('sitar', this.value)" class="w-full accent-amber-500 bg-indigo-950 rounded h-1">
+                    </div>
+
+                    <!-- Layer 3: Warm Synth Pad -->
+                    <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-900/40 space-y-1.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="toggle-pad" checked onchange="toggleLayer('pad', this.checked)" class="accent-amber-500 rounded">
+                                <span class="font-medium text-slate-200">Warm Sunset Synth Pad</span>
+                            </label>
+                            <span class="text-[10px] font-mono text-amber-400" id="vol-pad-val">75%</span>
+                        </div>
+                        <input type="range" id="vol-pad" min="0" max="1" step="0.05" value="0.75" oninput="setLayerVolume('pad', this.value)" class="w-full accent-amber-500 bg-indigo-950 rounded h-1">
+                    </div>
+
+                    <!-- Layer 4: Ocean Waves -->
+                    <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-900/40 space-y-1.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="toggle-waves" checked onchange="toggleLayer('waves', this.checked)" class="accent-amber-500 rounded">
+                                <span class="font-medium text-slate-200">Coastal Waves & Wind</span>
+                            </label>
+                            <span class="text-[10px] font-mono text-amber-400" id="vol-waves-val">55%</span>
+                        </div>
+                        <input type="range" id="vol-waves" min="0" max="1" step="0.05" value="0.55" oninput="setLayerVolume('waves', this.value)" class="w-full accent-amber-500 bg-indigo-950 rounded h-1">
+                    </div>
+
+                    <!-- Layer 5: Wind Chimes -->
+                    <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-900/40 space-y-1.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="toggle-chimes" checked onchange="toggleLayer('chimes', this.checked)" class="accent-amber-500 rounded">
+                                <span class="font-medium text-slate-200">Gentle Wind Chimes</span>
+                            </label>
+                            <span class="text-[10px] font-mono text-amber-400" id="vol-chimes-val">45%</span>
+                        </div>
+                        <input type="range" id="vol-chimes" min="0" max="1" step="0.05" value="0.45" oninput="setLayerVolume('chimes', this.value)" class="w-full accent-amber-500 bg-indigo-950 rounded h-1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center/Right Floating Quote & Painting Description -->
+            <div class="hidden lg:flex flex-col items-center justify-center max-w-sm text-center space-y-3 pointer-events-auto">
+                <div class="glass-card p-6 rounded-2xl shadow-2xl border border-amber-500/25 space-y-3">
+                    <i class="fa-solid fa-quote-left text-amber-400 text-2xl opacity-80"></i>
+                    <p class="serif-font italic text-indigo-100 text-sm leading-relaxed">
+                        "As the 4:03 AM dawn breaks over Mokila and mirrors the golden sunset clouds upon the coastal waters, this infinite generative tune flows in eternal resonance."
+                    </p>
+                    <div class="text-[11px] font-mono text-amber-400 uppercase tracking-widest pt-1">Web Audio API Synthesis Active</div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Master Controls & Timers -->
+            <div class="w-full lg:w-80 glass-card rounded-2xl p-5 space-y-5 pointer-events-auto shadow-2xl">
+                <div class="flex items-center justify-between border-b border-indigo-900/50 pb-3">
+                    <h2 class="serif-font font-bold text-sm text-amber-300 tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> MASTER SETTINGS
+                    </h2>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Live Sync</span>
+                </div>
+
+                <!-- Master Volume -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs text-indigo-200">
+                        <span>Master Volume</span>
+                        <span id="master-vol-label" class="font-mono text-amber-400">85%</span>
+                    </div>
+                    <input type="range" id="master-volume" min="0" max="1" step="0.02" value="0.85" oninput="setMasterVolume(this.value)" class="w-full accent-amber-500 bg-indigo-950 rounded h-1.5">
+                </div>
+
+                <!-- Pluck Tempo / Drift -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs text-indigo-200">
+                        <span>Melody Pluck Pace</span>
+                        <span id="tempo-label" class="font-mono text-amber-400">5.0s</span>
+                    </div>
+                    <input type="range" id="pluck-tempo" min="2.5" max="10" step="0.5" value="5.0" oninput="setPluckTempo(this.value)" class="w-full accent-amber-500 bg-indigo-950 rounded h-1.5">
+                </div>
+
+                <!-- Meditation Session Timer -->
+                <div class="bg-indigo-950/60 rounded-xl p-4 border border-indigo-900/50 text-center space-y-2">
+                    <div class="text-[11px] uppercase font-mono text-indigo-300 tracking-wider">Session Elapsed Time</div>
+                    <div id="session-timer" class="serif-font text-2xl font-bold text-amber-300">00:00:00</div>
+                    <div class="flex justify-center space-x-2 pt-1">
+                        <button onclick="resetTimer()" class="px-3 py-1 bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 text-xs rounded-lg border border-indigo-700/50 transition">Reset Timer</button>
+                    </div>
+                </div>
+
+                <!-- Download / MP3 Simulation Notice -->
+                <div class="space-y-2 pt-1">
+                    <button onclick="simulateAudioExport()" class="w-full py-2.5 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 border border-indigo-700/50 text-indigo-200 text-xs font-semibold flex items-center justify-center space-x-2 transition">
+                        <i class="fa-solid fa-download text-amber-400"></i>
+                        <span>Export Generative MP3 / WAV</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer Status Bar -->
+    <footer class="w-full px-6 py-3 bg-[#0b0f19] border-t border-indigo-950/60 flex items-center justify-between text-xs text-indigo-400 z-30">
+        <div class="flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Synthesizer: Web Audio API Oscillator & WaveShaper Complex (Zero External Audio Dependencies)</span>
+        </div>
+        <div class="font-mono text-[11px] text-amber-300/80">
+            Inspired by Coastal Sunset Oil Painting & Mokila 4:03 AM Dawn
+        </div>
+    </footer>
+
+    <!-- Web Audio & Interactive Painting Visualizer Script -->
+    <script>
+        // ================= WEB AUDIO SYNTHESIZER ENGINE =================
+        let audioCtx = null;
+        let masterGain = null;
+        let isPlaying = false;
+
+        // Sound Layers
+        let layers = {
+            tanpura: { gain: null, enabled: true, volume: 0.8 },
+            sitar: { gain: null, enabled: true, volume: 0.7 },
+            pad: { gain: null, enabled: true, volume: 0.75 },
+            waves: { gain: null, enabled: true, volume: 0.55 },
+            chimes: { gain: null, enabled: true, volume: 0.45 }
+        };
+
+        // Raga Scales (Root Sa = C3 = 130.81 Hz)
+        const rootFreq = 130.81;
+        const ragaPresets = {
+            dawn: {
+                name: "Dawn Awakening (Raga Todi)",
+                notes: [130.81, 138.59, 155.56, 185.00, 220.00, 233.08, 261.63, 311.13, 349.23],
+                drone: [130.81, 196.00, 261.63]
+            },
+            twilight: {
+                name: "Coastal Twilight (Raga Hamsadhwani)",
+                notes: [130.81, 146.83, 164.81, 196.00, 246.94, 261.63, 293.66, 329.63, 392.00],
+                drone: [130.81, 196.00, 261.63]
+            },
+            meditation: {
+                name: "Kapi Contemplation",
+                notes: [130.81, 146.83, 155.56, 174.61, 196.00, 220.00, 233.08, 261.63],
+                drone: [130.81, 196.00, 261.63]
+            }
+        };
+
+        let currentPreset = 'dawn';
+        let pluckIntervalTimer = null;
+        let chimeIntervalTimer = null;
+        let pluckTempoSeconds = 5.0;
+
+        let startTime = null;
+        let timerInterval = null;
+        let elapsedSeconds = 0;
+
+        function initAudioContext() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.85;
+            masterGain.connect(audioCtx.destination);
+
+            for (let key in layers) {
+                layers[key].gain = audioCtx.createGain();
+                layers[key].gain.gain.value = layers[key].enabled ? layers[key].volume : 0;
+                layers[key].gain.connect(masterGain);
+            }
+
+            startTanpuraDrone();
+            startSynthPad();
+            startOceanWaves();
+            startMelodyPlucks();
+            startWindChimes();
+        }
+
+        function toggleMasterAudio() {
+            if (!audioCtx) {
+                initAudioContext();
+            }
+
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            isPlaying = !isPlaying;
+            const btnIcon = document.getElementById('master-play-icon');
+            const btnText = document.getElementById('master-play-text');
+
+            if (isPlaying) {
+                btnIcon.className = "fa-solid fa-pause text-sm";
+                btnText.innerText = "Pause Soundscape";
+                masterGain.gain.setTargetAtTime(document.getElementById('master-volume').value, audioCtx.currentTime, 0.5);
+                startTimer();
+            } else {
+                btnIcon.className = "fa-solid fa-play text-sm";
+                btnText.innerText = "Start Soundscape";
+                masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
+                pauseTimer();
+            }
+        }
+
+        let tanpuraOscillators = [];
+        function startTanpuraDrone() {
+            const droneNotes = ragaPresets[currentPreset].drone;
+            droneNotes.forEach((freq, idx) => {
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = idx === 1 ? 'triangle' : 'sine';
+                osc.frequency.value = freq;
+                osc.detune.value = (Math.random() - 0.5) * 5;
+
+                filter.type = 'lowpass';
+                filter.frequency.value = 750;
+                gainNode.gain.value = 0.22 / droneNotes.length;
+
+                osc.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(layers.tanpura.gain);
+
+                osc.start();
+                tanpuraOscillators.push(osc);
+            });
+        }
+
+        function updateTanpuraDrone() {
+            if (!audioCtx) return;
+            tanpuraOscillators.forEach(osc => {
+                try { osc.stop(); } catch(e){}
+            });
+            tanpuraOscillators = [];
+            startTanpuraDrone();
+        }
+
+        let padOscillators = [];
+        function startSynthPad() {
+            const chordNotes = [rootFreq, rootFreq * 1.5, rootFreq * 2, rootFreq * 2.5];
+            chordNotes.forEach(freq => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sawtooth';
+                osc.frequency.value = freq;
+                filter.type = 'lowpass';
+                filter.frequency.value = 450;
+                gain.gain.value = 0.12;
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(layers.pad.gain);
+
+                osc.start();
+                padOscillators.push(osc);
+            });
+        }
+
+        function updateSynthPad() {
+            if (!audioCtx) return;
+            padOscillators.forEach(osc => {
+                try { osc.stop(); } catch(e){}
+            });
+            padOscillators = [];
+            startSynthPad();
+        }
+
+        let waveNode = null;
+        function startOceanWaves() {
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                data[i] *= 0.1;
+                b6 = white * 0.115926;
+            }
+
+            const noiseSource = audioCtx.createBufferSource();
+            noiseSource.buffer = buffer;
+            noiseSource.loop = true;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 320;
+
+            const lfo = audioCtx.createOscillator();
+            lfo.frequency.value = 0.1;
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = 220;
+
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+
+            noiseSource.connect(filter);
+            filter.connect(layers.waves.gain);
+
+            noiseSource.start();
+            lfo.start();
+            waveNode = noiseSource;
+        }
+
+        function startMelodyPlucks() {
+            if (pluckIntervalTimer) clearInterval(pluckIntervalTimer);
+            pluckIntervalTimer = setInterval(() => {
+                if (!isPlaying || !audioCtx) return;
+                playRandomPluck();
+            }, pluckTempoSeconds * 1000);
+        }
+
+        function playRandomPluck() {
+            const notes = ragaPresets[currentPreset].notes;
+            const freq = notes[Math.floor(Math.random() * notes.length)] * (Math.random() > 0.4 ? 2 : 1);
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2800, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(350, audioCtx.currentTime + 3.0);
+
+            gain.gain.setValueAtTime(0.28, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.5);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(layers.sitar.gain);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 3.6);
+        }
+
+        function startWindChimes() {
+            if (chimeIntervalTimer) clearInterval(chimeIntervalTimer);
+            chimeIntervalTimer = setInterval(() => {
+                if (!isPlaying || !audioCtx) return;
+                if (Math.random() > 0.3) return; // Gentle random chime intervals
+
+                const chimeFreqs = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
+                const freq = chimeFreqs[Math.floor(Math.random() * chimeFreqs.length)];
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.0);
+
+                osc.connect(gain);
+                gain.connect(layers.chimes.gain);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 2.2);
+            }, 3000);
+        }
+
+        function setMoodPreset(presetKey) {
+            currentPreset = presetKey;
+            ['dawn', 'twilight', 'meditation'].forEach(key => {
+                const btn = document.getElementById(`mood-btn-${key}`);
+                const check = btn.querySelector('.fa-check');
+                if (key === presetKey) {
+                    btn.className = "w-full p-3 rounded-xl border border-amber-500/50 bg-amber-500/10 text-left transition flex items-center justify-between group";
+                    btn.querySelector('.text-xs').className = "text-xs font-bold text-amber-300";
+                    check.style.opacity = "1";
+                } else {
+                    btn.className = "w-full p-3 rounded-xl border border-indigo-900/50 bg-indigo-950/30 text-left transition flex items-center justify-between group hover:border-indigo-700";
+                    btn.querySelector('.text-xs').className = "text-xs font-bold text-slate-200";
+                    check.style.opacity = "0";
+                }
+            });
+
+            if (audioCtx && isPlaying) {
+                updateTanpuraDrone();
+                updateSynthPad();
+            }
+        }
+
+        function toggleLayer(layerName, enabled) {
+            layers[layerName].enabled = enabled;
+            if (layers[layerName].gain && audioCtx) {
+                layers[layerName].gain.gain.setTargetAtTime(enabled ? layers[layerName].volume : 0, audioCtx.currentTime, 0.1);
+            }
+            document.getElementById(`vol-${layerName}-val`).innerText = enabled ? `${Math.round(layers[layerName].volume * 100)}%` : 'Muted';
+        }
+
+        function setLayerVolume(layerName, val) {
+            layers[layerName].volume = parseFloat(val);
+            document.getElementById(`vol-${layerName}-val`).innerText = `${Math.round(val * 100)}%`;
+            if (layers[layerName].gain && audioCtx && layers[layerName].enabled) {
+                layers[layerName].gain.gain.setTargetAtTime(val, audioCtx.currentTime, 0.1);
+            }
+        }
+
+        function setMasterVolume(val) {
+            document.getElementById('master-vol-label').innerText = `${Math.round(val * 100)}%`;
+            if (masterGain && audioCtx) {
+                masterGain.gain.setTargetAtTime(parseFloat(val), audioCtx.currentTime, 0.1);
+            }
+        }
+
+        function setPluckTempo(val) {
+            pluckTempoSeconds = parseFloat(val);
+            document.getElementById('tempo-label').innerText = `${pluckTempoSeconds.toFixed(1)}s`;
+            if (isPlaying) {
+                startMelodyPlucks();
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+            startTime = Date.now() - (elapsedSeconds * 1000);
+            timerInterval = setInterval(() => {
+                elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                const hrs = String(Math.floor(elapsedSeconds / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((elapsedSeconds % 3600) / 60)).padStart(2, '0');
+                const secs = String(elapsedSeconds % 60).padStart(2, '0');
+                document.getElementById('session-timer').innerText = `${hrs}:${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            elapsedSeconds = 0;
+            document.getElementById('session-timer').innerText = "00:00:00";
+            if (isPlaying) startTimer();
+        }
+
+        function simulateAudioExport() {
+            const btnText = event.currentTarget.querySelector('span');
+            const original = btnText.innerText;
+            btnText.innerText = "Rendering MP3 stream...";
+            setTimeout(() => {
+                btnText.innerText = "Export Complete! (.mp3)";
+                setTimeout(() => btnText.innerText = original, 3000);
+            }, 2000);
+        }
+
+        // ================= PAINTING VISUALIZER CANVAS (THREE.JS / 2D CANVAS) =================
+        const canvas = document.getElementById('meditationCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        let waveOffsets = [0, 0, 0];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        for (let i = 0; i < 80; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height * 0.7,
+                radius: Math.random() * 2.5 + 0.5,
+                speedY: (Math.random() * 0.4 + 0.1) * -1,
+                speedX: (Math.random() - 0.5) * 0.3,
+                opacity: Math.random() * 0.7 + 0.2,
+                color: Math.random() > 0.4 ? '#fbbf24' : '#f43f5e'
+            });
+        }
+
+        function renderVisualizer() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Sky matching the painting (deep purple clouds transitioning to golden sunset horizon)
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.6);
+            skyGrad.addColorStop(0, '#1e1b4b');
+            skyGrad.addColorStop(0.35, '#4c1d95');
+            skyGrad.addColorStop(0.7, '#9333ea');
+            skyGrad.addColorStop(0.88, '#ea580c');
+            skyGrad.addColorStop(1, '#fbbf24');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.6);
+
+            // Golden Sun & Corona matching the painting
+            const sunX = canvas.width * 0.55;
+            const sunY = canvas.height * 0.55;
+            const sunGrad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 190);
+            sunGrad.addColorStop(0, 'rgba(255, 247, 237, 0.95)');
+            sunGrad.addColorStop(0.25, 'rgba(251, 191, 36, 0.7)');
+            sunGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = sunGrad;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 190, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Sea background
+            const seaGrad = ctx.createLinearGradient(0, canvas.height * 0.55, 0, canvas.height);
+            seaGrad.addColorStop(0, '#0f172a');
+            seaGrad.addColorStop(0.3, '#1e3a8a');
+            seaGrad.addColorStop(1, '#080c14');
+            ctx.fillStyle = seaGrad;
+            ctx.fillRect(0, canvas.height * 0.55, canvas.width, canvas.height * 0.45);
+
+            // Sun reflection on rippling sea
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
+            for (let i = 0; i < 18; i++) {
+                const rx = sunX + (Math.random() - 0.5) * 350 * (i / 12);
+                const ry = canvas.height * 0.6 + i * 18 + Math.sin(Date.now() * 0.003 + i) * 4;
+                const rw = Math.max(12, 160 - i * 7);
+                const rh = 3 + Math.sin(Date.now() * 0.005 + i) * 2;
+                ctx.fillRect(rx - rw/2, ry, rw, rh);
+            }
+
+            // Distant Mountains matching painting right side
+            ctx.fillStyle = '#17132a';
+            ctx.beginPath();
+            ctx.moveTo(canvas.width, canvas.height * 0.6);
+            ctx.lineTo(canvas.width * 0.75, canvas.height * 0.52);
+            ctx.lineTo(canvas.width * 0.65, canvas.height * 0.55);
+            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.58);
+            ctx.lineTo(canvas.width, canvas.height * 0.6);
+            ctx.fill();
+
+            // Right foreground rocky coastline & foliage
+            ctx.beginPath();
+            ctx.moveTo(canvas.width, canvas.height);
+            ctx.lineTo(canvas.width * 0.68, canvas.height * 0.82);
+            ctx.lineTo(canvas.width * 0.74, canvas.height * 0.68);
+            ctx.lineTo(canvas.width, canvas.height * 0.63);
+            ctx.closePath();
+            ctx.fillStyle = '#0b0d18';
+            ctx.fill();
+
+            // Sailboat silhouette matching painting center-left
+            const boatX = canvas.width * 0.42;
+            const boatY = canvas.height * 0.56 + Math.sin(Date.now() * 0.002) * 3;
+            ctx.fillStyle = '#080a12';
+            ctx.beginPath();
+            ctx.moveTo(boatX - 16, boatY);
+            ctx.lineTo(boatX + 16, boatY);
+            ctx.lineTo(boatX + 11, boatY + 7);
+            ctx.lineTo(boatX - 11, boatY + 7);
+            ctx.closePath();
+            ctx.fill();
+            // Mast and sail
+            ctx.beginPath();
+            ctx.moveTo(boatX, boatY);
+            ctx.lineTo(boatX, boatY - 28);
+            ctx.lineTo(boatX + 14, boatY - 12);
+            ctx.closePath();
+            ctx.fill();
+
+            // Animated ocean waves
+            waveOffsets[0] += 0.016;
+            waveOffsets[1] += 0.024;
+            waveOffsets[2] += 0.011;
+
+            const drawWave = (yBase, amplitude, frequency, color, alpha) => {
+                ctx.strokeStyle = color;
+                ctx.globalAlpha = alpha;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let x = 0; x < canvas.width; x += 10) {
+                    const y = yBase + Math.sin(x * frequency + waveOffsets[0]) * amplitude + Math.cos(x * 0.01 - waveOffsets[1]) * (amplitude * 0.5);
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+            };
+
+            drawWave(canvas.height * 0.6, 7, 0.015, '#fbbf24', 0.45);
+            drawWave(canvas.height * 0.72, 11, 0.01, '#38bdf8', 0.35);
+            drawWave(canvas.height * 0.86, 15, 0.008, '#818cf8', 0.3);
+
+            // Floating ambient dawn particles
+            particles.forEach(p => {
+                p.y += p.speedY;
+                p.x += p.speedX + (isPlaying ? Math.sin(Date.now() * 0.002) * 0.2 : 0);
+
+                if (p.y < 0) {
+                    p.y = canvas.height * 0.7;
+                    p.x = Math.random() * canvas.width;
+                }
+
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.opacity;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            });
+
+            requestAnimationFrame(renderVisualizer);
+        }
+
+        requestAnimationFrame(renderVisualizer);
+    </script>
+</body>
+</html>
